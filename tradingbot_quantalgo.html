@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuantAlgo — AI Trading Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --white: #ffffff;
+  --off: #fafafa;
+  --border: #e5e5e5;
+  --border-light: #f0f0f0;
+  --text: #0a0a0a;
+  --text-2: #525252;
+  --text-3: #a3a3a3;
+  --green: #16a34a;
+  --mono: 'Geist Mono', monospace;
+  --sans: 'Geist', sans-serif;
+  --serif: 'Instrument Serif', serif;
+  --syn-kw:  #7c3aed;
+  --syn-fn:  #0369a1;
+  --syn-str: #15803d;
+  --syn-cm:  #a3a3a3;
+  --syn-num: #c2410c;
+  --syn-bi:  #0e7490;
+  --syn-dec: #b45309;
+  --syn-cls: #be185d;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--white);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  height: 56px;
+  display: flex; align-items: center;
+  padding: 0 40px;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 13px; font-weight: 500;
+  color: var(--text); text-decoration: none;
+}
+
+.nav-right {
+  display: flex; align-items: center; gap: 20px;
+}
+
+.nav-link {
+  font-size: 13px; color: var(--text-2);
+  text-decoration: none; transition: color 0.12s;
+}
+.nav-link:hover { color: var(--text); }
+
+.nav-badge {
+  font-family: var(--mono); font-size: 11px;
+  padding: 4px 10px; border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--text-2); background: var(--off);
+  display: flex; align-items: center; gap: 6px;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.18);
+}
+
+/* HERO */
+.hero {
+  max-width: 780px; margin: 0 auto;
+  padding: 72px 40px 56px;
+  border-bottom: 1px solid var(--border-light);
+  animation: up 0.45s ease both;
+}
+
+.tag {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 24px;
+  display: flex; align-items: center; gap: 10px;
+}
+.tag::before {
+  content:''; display:block;
+  width:14px; height:1px; background: var(--text-3);
+}
+
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+  font-weight: 400; line-height: 1.1;
+  letter-spacing: -0.02em; margin-bottom: 18px;
+}
+h1 em { font-style: italic; color: var(--text-2); }
+
+.desc {
+  font-size: 15.5px; line-height: 1.75;
+  color: var(--text-2); font-weight: 300;
+  max-width: 520px; margin-bottom: 40px;
+}
+
+.stats {
+  display: flex; align-items: center; gap: 0;
+  flex-wrap: wrap;
+}
+.stat {
+  display: flex; align-items: baseline; gap: 7px;
+  padding: 0 24px; border-right: 1px solid var(--border);
+}
+.stat:first-child { padding-left: 0; }
+.stat:last-child { border-right: none; }
+.stat-v { font-family: var(--mono); font-size: 13.5px; font-weight: 500; }
+.stat-l { font-size: 12px; color: var(--text-3); }
+
+/* CHIPS */
+.chips {
+  max-width: 780px; margin: 0 auto;
+  padding: 22px 40px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  animation: up 0.45s 0.07s ease both;
+}
+.chips-label {
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--text-3); margin-right: 2px;
+}
+.chip {
+  font-family: var(--mono); font-size: 11.5px;
+  padding: 4px 10px; border-radius: 4px;
+  background: var(--off); border: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+/* CODE */
+.code-wrap {
+  max-width: 780px; margin: 0 auto;
+  padding: 36px 40px 80px;
+  animation: up 0.45s 0.13s ease both;
+}
+
+.code-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--off); border: 1px solid var(--border);
+  border-bottom: none; border-radius: 8px 8px 0 0;
+}
+
+.code-fname {
+  font-family: var(--mono); font-size: 12px;
+  color: var(--text-2);
+  display: flex; align-items: center; gap: 8px;
+}
+.py-dot {
+  width: 9px; height: 9px; border-radius: 2px;
+  background: #3572a5; flex-shrink: 0;
+}
+
+.copy-btn {
+  font-family: var(--mono); font-size: 11.5px;
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--white); color: var(--text-2);
+  cursor: pointer; transition: all 0.12s;
+}
+.copy-btn:hover {
+  background: var(--text); color: var(--white);
+  border-color: var(--text);
+}
+
+.code-box {
+  border: 1px solid var(--border);
+  border-radius: 0 0 8px 8px; overflow: hidden;
+}
+.code-scroll { overflow: auto; max-height: 70vh; }
+
+table.ct {
+  border-collapse: collapse; width: 100%;
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.72;
+}
+td.ln {
+  width: 50px; min-width: 50px;
+  text-align: right; padding: 0 14px 0 10px;
+  color: var(--text-3); user-select: none;
+  border-right: 1px solid var(--border-light);
+  background: var(--off); vertical-align: top;
+  font-size: 11px; font-weight: 300;
+}
+td.lc {
+  padding: 0 28px 0 16px;
+  white-space: pre; vertical-align: top;
+  color: var(--text);
+}
+tr:hover td.ln { background: #f3f3f3; }
+tr:hover td.lc { background: #fcfcfc; }
+
+.kw  { color: var(--syn-kw); }
+.fn  { color: var(--syn-fn); }
+.st  { color: var(--syn-str); }
+.cm  { color: var(--syn-cm); font-style: italic; }
+.nm  { color: var(--syn-num); }
+.bi  { color: var(--syn-bi); }
+.dec { color: var(--syn-dec); }
+.cls { color: var(--syn-cls); }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 18px 40px;
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 11.5px; color: var(--text-3);
+}
+
+/* TOAST */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--text); color: var(--white);
+  font-family: var(--mono); font-size: 12px;
+  padding: 8px 18px; border-radius: 6px;
+  opacity: 0; transition: all 0.2s;
+  pointer-events: none; z-index: 999;
+}
+#toast.show { opacity:1; transform: translateX(-50%) translateY(0); }
+
+@keyframes up {
+  from { opacity:0; transform: translateY(14px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+@media (max-width:600px) {
+  nav, .hero, .chips, .code-wrap, footer { padding-left:20px; padding-right:20px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">quantalgo</a>
+  <div class="nav-right">
+    <a class="nav-link" href="https://github.com" target="_blank">GitHub ↗</a>
+    <div class="nav-badge"><span class="dot"></span>Paper Trading</div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="tag">Personal Project</div>
+  <h1>AI-Powered<br><em>Equity Trading Bot</em></h1>
+  <p class="desc">
+    Algorithmic trading system that manages a multi-level drawdown strategy across equities, places limit orders via Alpaca, and uses GPT-4 for real-time portfolio analysis through a desktop GUI.
+  </p>
+  <div class="stats">
+    <div class="stat"><span class="stat-v">~270</span><span class="stat-l">lines</span></div>
+    <div class="stat"><span class="stat-v">Python 3</span><span class="stat-l">language</span></div>
+    <div class="stat"><span class="stat-v">5 s</span><span class="stat-l">update cycle</span></div>
+    <div class="stat"><span class="stat-v">Paper</span><span class="stat-l">environment</span></div>
+  </div>
+</section>
+
+<div class="chips">
+  <span class="chips-label">Stack</span>
+  <span class="chip">alpaca-trade-api</span>
+  <span class="chip">openai</span>
+  <span class="chip">tkinter</span>
+  <span class="chip">threading</span>
+  <span class="chip">GPT-4</span>
+  <span class="chip">json</span>
+</div>
+
+<div class="code-wrap" id="code">
+  <div class="code-head">
+    <span class="code-fname"><span class="py-dot"></span>tradingbot_quantalgo.py</span>
+    <button class="copy-btn" onclick="copyCode()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy
+    </button>
+  </div>
+  <div class="code-box">
+    <div class="code-scroll">
+      <table class="ct" id="codeTable"></table>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>tradingbot_quantalgo.py</span>
+  <span>MIT License</span>
+</footer>
+
+<div id="toast">Copied to clipboard</div>
+
+<script>
+const raw = `import os
+import json
+import time
+import threading
+import random
+import tkinter as tk
+from tkinter import ttk, messagebox
+
+import alpaca_trade_api as tradeapi
+import openai
+
+DATA_FILE = "equities.json"
+
+# Read API keys from environment variables
+ALPACA_KEY = os.environ.get("ALPACA_KEY")
+ALPACA_SECRET_KEY = os.environ.get("ALPACA_SECRET_KEY")
+BASE_URL = "https://paper-api.alpaca.markets/"
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
+# Initialise Alpaca API client
+api = tradeapi.REST(ALPACA_KEY, ALPACA_SECRET_KEY, BASE_URL, api_version="v2")
+
+
+def fetch_portfolio():
+    positions = api.list_positions()
+    portfolio = []
+    for pos in positions:
+        portfolio.append({
+            "symbol": pos.symbol,
+            "qty": pos.qty,
+            "entry_price": pos.avg_entry_price,
+            "current_price": pos.current_price,
+            "unrealized_pl": pos.unrealized_pl,
+            "side": "buy",
+        })
+    return portfolio
+
+
+def fetch_open_orders():
+    orders = api.list_orders(status="open")
+    open_orders = []
+    for order in orders:
+        open_orders.append({
+            "symbol": order.symbol,
+            "qty": order.qty,
+            "limit_price": order.limit_price,
+            "side": "buy",
+        })
+    return open_orders
+
+
+def fetch_mock_api(symbol: str) -> dict:
+    """Mock price fetcher; replace with real market data if desired."""
+    return {"price": 100}
+
+
+def chatgpt_response(message: str) -> str:
+    """Generate a response using OpenAI's API based on portfolio context."""
+    portfolio_data = fetch_portfolio()
+    open_orders = fetch_open_orders()
+
+    pre_prompt = f"""
+You are an AI Portfolio Manager responsible for analyzing my portfolio.
+Tasks:
+1. Evaluate risk exposures of current holdings.
+2. Analyze my open limit orders and their potential impact.
+3. Provide insights into portfolio health, diversification and trade adjustments.
+4. Speculate on the market outlook based on current conditions.
+5. Identify potential market risks and suggest risk management strategies.
+6. Stay on top of earnings dates for my positions.
+
+Portfolio: {portfolio_data}
+Open orders: {open_orders}
+
+Answer the following question with this background in mind: {message}
+"""
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "system", "content": pre_prompt}],
+        api_key=OPENAI_API_KEY,
+    )
+    return response["choices"][0]["message"]["content"]
+
+
+class TradingBotGUI:
+    def __init__(self, root: tk.Tk) -> None:
+        self.root = root
+        self.root.title("AI Trading Bot")
+        self.equities = self.load_equities()
+        self.system_running = False
+
+        # Build form for adding equities
+        form_frame = tk.Frame(root)
+        form_frame.pack(pady=10)
+
+        tk.Label(form_frame, text="Symbol:").grid(row=0, column=0)
+        self.symbol_entry = tk.Entry(form_frame)
+        self.symbol_entry.grid(row=0, column=1)
+
+        tk.Label(form_frame, text="Levels:").grid(row=0, column=2)
+        self.levels_entry = tk.Entry(form_frame)
+        self.levels_entry.grid(row=0, column=3)
+
+        tk.Label(form_frame, text="Drawdown%:").grid(row=0, column=4)
+        self.drawdown_entry = tk.Entry(form_frame)
+        self.drawdown_entry.grid(row=0, column=5)
+
+        add_button = tk.Button(form_frame, text="Add Equity", command=self.add_equity)
+        add_button.grid(row=0, column=6)
+
+        # Table for displaying equities
+        self.tree = ttk.Treeview(
+            root,
+            columns=("Symbol", "Position", "Entry Price", "Levels", "Status"),
+            show="headings",
+        )
+        for col in ["Symbol", "Position", "Entry Price", "Levels", "Status"]:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=120)
+        self.tree.pack(pady=10)
+
+        toggle_button = tk.Button(
+            root, text="Toggle Selected System", command=self.toggle_selected_system
+        )
+        toggle_button.pack(pady=5)
+
+        remove_button = tk.Button(
+            root, text="Remove Selected Equity", command=self.remove_selected_equity
+        )
+        remove_button.pack(pady=5)
+
+        # Chat interface
+        chat_frame = tk.Frame(root)
+        chat_frame.pack(pady=10)
+
+        self.chat_input = tk.Entry(chat_frame, width=50)
+        self.chat_input.grid(row=0, column=0, padx=5)
+
+        send_button = tk.Button(chat_frame, text="Send", command=self.send_message)
+        send_button.grid(row=0, column=1)
+
+        self.chat_output = tk.Text(root, height=5, width=60, state=tk.DISABLED)
+        self.chat_output.pack()
+
+        self.refresh_table()
+
+        self.running = True
+        self.auto_update_thread = threading.Thread(target=self.auto_update, daemon=True)
+        self.auto_update_thread.start()
+
+    def add_equity(self) -> None:
+        """Add a new equity to the portfolio with drawdown levels."""
+        symbol = self.symbol_entry.get().upper()
+        levels_str = self.levels_entry.get()
+        drawdown_str = self.drawdown_entry.get()
+
+        if not symbol or not levels_str.isdigit() or not drawdown_str.replace(".", "", 1).isdigit():
+            messagebox.showerror("Error", "Invalid input")
+            return
+
+        levels = int(levels_str)
+        drawdown = float(drawdown_str) / 100
+        entry_price = fetch_mock_api(symbol)["price"]
+
+        level_prices = {
+            i + 1: round(entry_price * (1 - drawdown * (i + 1)), 2)
+            for i in range(levels)
+        }
+
+        self.equities[symbol] = {
+            "position": 0,
+            "entry_price": entry_price,
+            "levels": level_prices,
+            "drawdown": drawdown,
+            "status": "Off",
+        }
+        self.save_equities()
+        self.refresh_table()
+
+    def toggle_selected_system(self) -> None:
+        """Toggle the trading system on/off for selected equities."""
+        selected_items = self.tree.selection()
+        if not selected_items:
+            messagebox.showwarning("Warning", "No equity selected")
+            return
+
+        for item in selected_items:
+            symbol = self.tree.item(item)["values"][0]
+            status = self.equities[symbol]["status"]
+            self.equities[symbol]["status"] = "On" if status == "Off" else "Off"
+
+        self.save_equities()
+        self.refresh_table()
+
+    def remove_selected_equity(self) -> None:
+        """Remove selected equities from the portfolio."""
+        selected_items = self.tree.selection()
+        if not selected_items:
+            messagebox.showwarning("Warning", "No equity selected")
+            return
+
+        for item in selected_items:
+            symbol = self.tree.item(item)["values"][0]
+            self.equities.pop(symbol, None)
+
+        self.save_equities()
+        self.refresh_table()
+
+    def send_message(self) -> None:
+        """Send a query to the ChatGPT portfolio assistant."""
+        message = self.chat_input.get().strip()
+        if not message:
+            return
+
+        response = chatgpt_response(message)
+        self.chat_output.config(state=tk.NORMAL)
+        self.chat_output.insert(tk.END, f"You: {message}\\n{response}\\n\\n")
+        self.chat_output.config(state=tk.DISABLED)
+        self.chat_input.delete(0, tk.END)
+
+    def fetch_alpaca_data(self, symbol: str) -> dict:
+        """Fetch the latest trade price from Alpaca; returns -1 on error."""
+        try:
+            trade = api.get_latest_trade(symbol)
+            return {"price": trade.price}
+        except Exception:
+            return {"price": -1}
+
+    def check_existing_orders(self, symbol: str, price: float) -> bool:
+        """Check whether there is already an open order at a given price."""
+        try:
+            orders = api.list_orders(status="open", symbols=symbol)
+            return any(float(order.limit_price) == price for order in orders)
+        except Exception as e:
+            messagebox.showerror("API Error", f"Error checking orders: {e}")
+            return False
+
+    def get_max_entry_price(self, symbol: str) -> float:
+        """Return the highest filled average price for recent orders of the symbol."""
+        try:
+            orders = api.list_orders(status="filled", limit=50)
+            prices = [
+                float(order.filled_avg_price)
+                for order in orders
+                if order.filled_avg_price and order.symbol == symbol
+            ]
+            return max(prices) if prices else -1
+        except Exception as e:
+            messagebox.showerror("API Error", f"Error fetching orders: {e}")
+            return 0
+
+    def trade_systems(self) -> None:
+        """Iterate through equities and manage limit orders based on drawdown levels."""
+        for symbol, data in self.equities.items():
+            if data["status"] != "On":
+                continue
+
+            try:
+                position = api.get_position(symbol)
+                entry_price = self.get_max_entry_price(symbol)
+            except Exception:
+                if data["position"] == 0:
+                    api.submit_order(
+                        symbol=symbol,
+                        qty=1,
+                        side="buy",
+                        type="market",
+                        time_in_force="gtc",
+                    )
+                    time.sleep(2)
+                    entry_price = self.get_max_entry_price(symbol)
+                    self.equities[symbol]["position"] = 1
+                else:
+                    continue
+
+            levels = len(data["levels"])
+            level_prices = {
+                i + 1: round(entry_price * (1 - data["drawdown"] * (i + 1)), 2)
+                for i in range(levels)
+            }
+            existing_levels = data.get("levels", {})
+            for level, price in level_prices.items():
+                if level not in existing_levels and -level not in existing_levels:
+                    existing_levels[level] = price
+
+            data["entry_price"] = entry_price
+            data["levels"] = existing_levels
+            data["position"] = 1
+
+            for level, price in level_prices.items():
+                if level in data["levels"]:
+                    self.place_order(symbol, price, level)
+
+        self.save_equities()
+        self.refresh_table()
+
+    def place_order(self, symbol: str, price: float, level: int) -> None:
+        """Place a limit order if appropriate and update level tracking."""
+        if price <= 0:
+            print(f"Skipping order for {symbol} at non-positive price: {price}")
+            return
+        if -level in self.equities[symbol]["levels"]:
+            return
+
+        try:
+            api.submit_order(
+                symbol=symbol,
+                qty=1,
+                side="buy",
+                type="limit",
+                time_in_force="gtc",
+                limit_price=price,
+            )
+            self.equities[symbol]["levels"][-level] = price
+            del self.equities[symbol]["levels"][level]
+            print(f"Placed order for {symbol} @ {price}")
+        except Exception as e:
+            messagebox.showerror("Order Error", f"Error placing order: {e}")
+
+    def refresh_table(self) -> None:
+        """Refresh the Treeview widget with current equity data."""
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+        for symbol, data in self.equities.items():
+            self.tree.insert(
+                "", "end",
+                values=(
+                    symbol,
+                    data["position"],
+                    data["entry_price"],
+                    str(data["levels"]),
+                    data["status"],
+                ),
+            )
+
+    def auto_update(self) -> None:
+        """Background thread to periodically run trading logic."""
+        while self.running:
+            time.sleep(5)
+            self.trade_systems()
+
+    def save_equities(self) -> None:
+        """Persist the equities dictionary to a JSON file."""
+        with open(DATA_FILE, "w") as f:
+            json.dump(self.equities, f)
+
+    def load_equities(self) -> dict:
+        """Load equities from a JSON file, handling missing or invalid files."""
+        try:
+            with open(DATA_FILE, "r") as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {}
+
+    def on_close(self) -> None:
+        """Handler for the window close event."""
+        self.running = False
+        self.save_equities()
+        self.root.destroy()
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = TradingBotGUI(root)
+    root.protocol("WM_DELETE_WINDOW", app.on_close)
+    root.mainloop()`;
+
+const KW = new Set(['import','from','def','class','return','if','else','elif',
+  'for','while','in','not','and','or','is','try','except','continue','break',
+  'pass','with','as','raise','lambda','True','False','None','self']);
+const BI = new Set(['print','len','int','float','str','list','dict','set',
+  'tuple','range','open','max','min','any','all','round','isinstance',
+  'hasattr','getattr','setattr','vars','Exception','FileNotFoundError']);
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function hl(line) {
+  if (!line.trim()) return '\u00a0';
+  const toks = []; let i = 0;
+  while (i < line.length) {
+    if (line[i]==='#') { toks.push(`<span class="cm">${esc(line.slice(i))}</span>`); break; }
+    if ((line[i]==='f'||line[i]==='F') && (line[i+1]==='"'||line[i+1]==="'")) {
+      const q=line[i+1]; let j=i+2;
+      while(j<line.length&&line[j]!==q){if(line[j]==='\\')j++;j++;}
+      toks.push(`<span class="st">${esc(line.slice(i,j+1))}</span>`); i=j+1; continue;
+    }
+    if (line[i]==='"'||line[i]==="'") {
+      const q=line[i];
+      if(line[i+1]===q&&line[i+2]===q){
+        let j=i+3;
+        while(j<line.length&&!(line[j]===q&&line[j+1]===q&&line[j+2]===q))j++;
+        toks.push(`<span class="st">${esc(line.slice(i,j+3))}</span>`); i=j+3; continue;
+      }
+      let j=i+1;
+      while(j<line.length&&line[j]!==q){if(line[j]==='\\')j++;j++;}
+      toks.push(`<span class="st">${esc(line.slice(i,j+1))}</span>`); i=j+1; continue;
+    }
+    if(line[i]==='@'){
+      let j=i+1; while(j<line.length&&/\w/.test(line[j]))j++;
+      toks.push(`<span class="dec">${esc(line.slice(i,j))}</span>`); i=j; continue;
+    }
+    if(/[a-zA-Z_]/.test(line[i])){
+      let j=i+1; while(j<line.length&&/\w/.test(line[j]))j++;
+      const w=line.slice(i,j);
+      const after=line.slice(j).trimStart();
+      if(KW.has(w)) toks.push(`<span class="kw">${esc(w)}</span>`);
+      else if(after[0]==='('&&w[0]===w[0].toUpperCase()&&/[A-Z]/.test(w[0])) toks.push(`<span class="cls">${esc(w)}</span>`);
+      else if(after[0]==='(') toks.push(`<span class="fn">${esc(w)}</span>`);
+      else if(BI.has(w)) toks.push(`<span class="bi">${esc(w)}</span>`);
+      else toks.push(esc(w));
+      i=j; continue;
+    }
+    if(/[0-9]/.test(line[i])){
+      let j=i+1; while(j<line.length&&/[\d._]/.test(line[j]))j++;
+      toks.push(`<span class="nm">${esc(line.slice(i,j))}</span>`); i=j; continue;
+    }
+    toks.push(esc(line[i])); i++;
+  }
+  return toks.join('');
+}
+
+const table = document.getElementById('codeTable');
+const frag = document.createDocumentFragment();
+raw.split('\n').forEach((line, i) => {
+  const tr = document.createElement('tr');
+  const t1 = document.createElement('td'); t1.className='ln'; t1.textContent=i+1;
+  const t2 = document.createElement('td'); t2.className='lc'; t2.innerHTML=hl(line);
+  tr.append(t1,t2); frag.appendChild(tr);
+});
+table.appendChild(frag);
+
+function copyCode(){
+  navigator.clipboard.writeText(raw).then(()=>{
+    const t=document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),1800);
+  });
+}
+</script>
+</body>
+</html>
